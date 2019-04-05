@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    machine: true
+
+    steps:
+      - run:
+          name: Setup Environment Variables
+          command: |
+            echo 'export OPA_VERSION="0.10.6"' >> $BASH_ENV
+      - checkout
+
+      - run:
+          name: Download OPA
+          command: |
+            wget -O opa https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64
+            sudo chmod +x opa
+
+      - run:
+          name: Test Policies
+          command: ./opa test .
