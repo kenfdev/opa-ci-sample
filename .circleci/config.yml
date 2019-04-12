@@ -5,16 +5,27 @@ jobs:
       - image: circleci/buildpack-deps:jessie
 
     steps:
+      - checkout
       - run:
-          name: Setup Environment Variables
+          name: Setup Environment Variables and Version file
           command: |
             echo 'export OPA_VERSION="0.10.6"' >> $BASH_ENV
-      - checkout
+            echo "${OPA_VERSION}" > _opa_version_
+      - restore_cache:
+          keys:
+            - opa-cache-{{ checksum "_opa_version_" }}
       - run:
           name: Download OPA
           command: |
-            wget -O opa https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64
-            sudo chmod +x opa
+            if [ ! -f .bin/opa ]; then
+              mkdir .bin
+              wget -O .bin/opa https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64
+              sudo chmod +x .bin/opa
+            fi
       - run:
           name: Test Policies
-          command: ./opa test .
+          command: .bin/opa test .
+      - save_cache:
+          key: opa-cache-{{ checksum "_opa_version_" }}
+          paths:
+            - .bin
