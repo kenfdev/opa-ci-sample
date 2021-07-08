@@ -9,7 +9,7 @@ test_s3_ListAllMyBuckets_allowed {
 }
 
 test_s3_ListBucket_to_confidential_data_allowed {
-  allow with input as { 
+  not allow with input as { 
     "action": "s3:ListBucket",
     "resource": "arn:aws:s3:::confidential-data/12345678"
   }
